@@ -11,6 +11,6 @@ class Book(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String)
-    product_url: Mapped[str] = mapped_column(String(255))
+    url: Mapped[str] = mapped_column(String(255))
     price: Mapped[float] = mapped_column(Float)
     rating: Mapped[float] = mapped_column(Float)

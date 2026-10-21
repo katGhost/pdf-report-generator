@@ -36,7 +36,7 @@ def get_books() -> list[dict[str, Any]]:
             "title": title,
             "price": parse_price(price),
             "rating": text2number(rating),
-            "product_url": url,
+            "url": url,
         })
     return extracted
 

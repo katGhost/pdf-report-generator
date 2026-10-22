@@ -1,4 +1,7 @@
+import asyncio
+import sys
 from datetime import date
+from pathlib import Path
 from html import escape
 from typing import Any
 from sqlalchemy import text
@@ -155,22 +158,20 @@ def build_report_html(report_data: dict) -> str:
     </html>"""
     
 
-def generate_pdf():
-    html_content = build_report_html(get_report())
-    
+def generate_pdf(html_content: str, output_path: Path) -> None:
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page()
         page.set_content(html=html_content)
         page.pdf(
-            path=f'{REPORTS_DIR}/test.pdf',
+            path=str(output_path),
             format='A4',
-            margin={
-                "top": "20mm",
-                "bottom": "20mm"
-            },
+            margin={"top": "20mm", "bottom": "20mm"},
             print_background=True,
         )
+        browser.close()
+
+
 
 if __name__ == "__main__":
-    generate_pdf()
+    asyncio.run(generate_pdf())

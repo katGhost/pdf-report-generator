@@ -4,8 +4,8 @@ import sys
 from functools import partial
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
-from sqlalchemy import select
+from fastapi.responses import JSONResponse, FileResponse
+from sqlalchemy import select, text
 from database.database import engine, Base
 from sqlalchemy.orm import Session
 from models import Book, Report
@@ -50,27 +50,39 @@ app = FastAPI(lifespan=lifespan)
 """
 
 @app.post("/reports", status_code=201)
-async def create_report():
+async def create_report(force: bool = False):
+    # Check for existing report today (idempotency)
+    if not force:
+        with Session(engine) as session:
+            existing = session.execute(
+                text("SELECT id, path FROM reports WHERE DATE(created_at) = DATE('now')")
+            ).mappings().first()
+
+            if existing:
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "id": existing["id"],
+                        "file": f"/reports/{existing['id']}/file",
+                    }
+                )
+
     report_data = get_report()
     html = build_report_html(report_data)
 
-    # Insert row first to get the auto-generated ID
     with Session(engine) as session:
-        report = Report(path="")  # temporary placeholder
+        report = Report(path="")
         session.add(report)
-        session.flush()  # writes to DB, gets ID, without committing yet
+        session.flush()
         report_id = report.id
 
-        # Got the ID, build the real path
         pdf_path = REPORTS_DIR / f"{report_id}.pdf"
         REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
-        # await generate_pdf(html, pdf_path)
         await asyncio.get_event_loop().run_in_executor(
             None, partial(generate_pdf, html, pdf_path)
         )
 
-        # Update the path now that the file exists
         report.path = str(pdf_path)
         session.commit()
 
@@ -109,6 +121,9 @@ async def serve_from_disk(id: int):
         media_type="application/pdf",
         filename=f"report_{id}.pdf",
     )
+
+
+
  
 
 # Health status

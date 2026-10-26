@@ -43,8 +43,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 """
-
-    
     Path(__file__).with_name("report.html").write_text(html, encoding="utf-8")
     return HTMLResponse(content=html)
 """
@@ -94,6 +92,18 @@ async def create_report(force: bool = False):
         }
     )
 
+@app.get("/reports")
+async def list_all_reports():
+    with Session(engine) as session:
+        reports = session.execute(
+            text("SELECT id, path FROM reports ORDER BY created_at DESC")
+        ).mappings().all()
+
+    return [
+        {"id": report["id"], "file": f"/reports/{report['id']}/file"}
+        for report in reports
+    ]
+
 # report per id
 @app.get("/reports/{id}")
 async def get_report_by_id(id: int):
@@ -122,9 +132,6 @@ async def serve_from_disk(id: int):
         filename=f"report_{id}.pdf",
     )
 
-
-
- 
 
 # Health status
 @app.get("/health")

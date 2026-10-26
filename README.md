@@ -82,7 +82,7 @@ ORDER BY rating;
 | `GET` | `/reports/{id}` | Get report record by ID |
 | `GET` | `/reports/{id}/file` | Download the PDF file |
 
-## POST → Download Proof
+## POST -> Download Proof
 
 ```bash
 # Generate a report
@@ -91,6 +91,10 @@ curl -X POST http://localhost:8000/reports
 
 # Download the PDF
 curl -o my-report.pdf http://localhost:8000/reports/1/file
+
+#EXTRA -> Endpoints: Lists al the generated files and paths
+curl -i GET http://localhost:8000/reports
+# [{"id":3,"file":"/reports/3/file"},{"id":2,"file":"/reports/2/file"},{"id":1,"file":"/reports/1/file"}]
 ```
 
 ## Idempotency

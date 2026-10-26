@@ -111,23 +111,39 @@ def build_report_html(report_data: dict) -> str:
         <meta charset="utf-8">
         <title>Book Report — {today}</title>
         <style>
-            body {{ font-family: Arial, sans-serif; margin: 2rem; color: #222; }}
+            :root {{
+            --bg: #0E0505;
+            --surface: #1C0C0C;
+            --text: #F5F0EE;
+            --rust: #D05C39;
+            --font: 'Inter', sans-serif;
+            }}
+            html {{ background: var(--bg); color: var(--text); font-family: var(--font); }}
+            body {{ font-family: var(--font); margin: 2rem; background: var(--bg); color: var(--text); }}
 
             h1 {{ font-size: 1.5rem; margin-bottom: 0.25rem; }}
-            .report-date {{ color: #666; font-size: 0.875rem; margin-bottom: 2rem; }}
+            .report-date {{ color: var(--rust); font-size: 0.875rem; margin-bottom: 2rem; }}
 
             .totals {{ display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }}
-            .total-card {{ padding: 1rem; min-width: 12rem; background: #f1f5f9; border-radius: 8px; }}
-            .total-card h2 {{ font-size: 0.875rem; margin: 0 0 .5rem; color: #555; }}
+            .total-card {{ padding: 1rem; min-width: 12rem; background: var(--surface); border-radius: 8px; }}
+            .total-card h2 {{ font-size: 0.875rem; margin: 0 0 .5rem; color: var(--text); }}
             .total-card p {{ font-size: 1.5rem; margin: 0; font-weight: bold; }}
 
             table {{ width: 100%; border-collapse: collapse; margin-bottom: 2rem; }}
-            thead {{ background: #1e293b; color: #fff; }}
-            th, td {{ padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid #e2e8f0; }}
+            thead {{ background: var(--rust); color: var(--bg); }}
+            th, td {{ padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--surface); }}
             tr {{ break-inside: avoid; }}
 
             @media print {{
                 body {{ margin: 1rem; }}
+            }}
+            @page {{
+                margin: 20mm;
+                @bottom-right {{
+                    content: "Page " counter(page) " of " counter(pages);
+                    font-size: 0.75rem;
+                    color: var(--rust);
+                }}
             }}
         </style>
     </head>
